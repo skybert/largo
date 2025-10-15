@@ -4,6 +4,22 @@ info:
     version: 42.0.0
 paths:
     /largo:
+        get:
+            summary: Get largo
+            operationId: get-largo
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/LargoInfoResponseBody'
+                default:
+                    description: Error
+                    content:
+                        application/problem+json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorModel'
         post:
             summary: Post largo
             operationId: post-largo
@@ -94,6 +110,29 @@ components:
                     default: about:blank
                     examples:
                         - https://example.com/errors/example
+        LargoInfoResponseBody:
+            type: object
+            additionalProperties: false
+            properties:
+                $schema:
+                    type: string
+                    description: A URL to the JSON Schema for this object.
+                    format: uri
+                    examples:
+                        - https://example.com/schemas/LargoInfoResponseBody.json
+                    readOnly: true
+                description:
+                    type: string
+                tempo_max:
+                    type: integer
+                    format: int64
+                tempo_min:
+                    type: integer
+                    format: int64
+            required:
+                - description
+                - tempo_min
+                - tempo_max
         TempoRequestBody:
             type: object
             additionalProperties: false
@@ -116,7 +155,6 @@ components:
                     pattern: '^skybert.net:largo:'
             required:
                 - tempo
-                - urn
         TempoResponseBody:
             type: object
             additionalProperties: false

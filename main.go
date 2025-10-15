@@ -19,7 +19,7 @@ type TempoRequest struct {
 	Body  struct {
 		Tempo int    `json:"tempo" required:"true" doc:"Tempo in bpm"`
 		Title string `json:"title" required:"false"`
-		URN   string `json:"urn" pattern:"^skybert.net:largo:"`
+		URN   string `json:"urn" required:"false" pattern:"^skybert.net:largo:"`
 	}
 }
 
@@ -32,12 +32,13 @@ type TempoResponse struct {
 	}
 }
 
-// type LargoInfoResponse struct {
-// 	Body struct {
-// 		TempoMin int `json:"tempo_min"`
-// 		TempoMax int `json:"tempo_max"`
-// 	}
-// }
+type LargoInfoResponse struct {
+	Body struct {
+		Description string `json:"description"`
+		TempoMin    int    `json:"tempo_min"`
+		TempoMax    int    `json:"tempo_max"`
+	}
+}
 
 func handleTempo(ctx context.Context, req *TempoRequest) (*TempoResponse, error) {
 	resp := &TempoResponse{}
@@ -52,13 +53,13 @@ func handleTempo(ctx context.Context, req *TempoRequest) (*TempoResponse, error)
 	return resp, nil
 }
 
-// func handleDefReq(ctx context.Context, req *struct{}) (*LargoInfoResponse, error) {
-// 	resp := &LargoInfoResponse{}
-// 	resp.Body.TempoMin = 40
-// 	resp.Body.TempoMax = 66
-
-// 	return resp, nil
-// }
+func handleDefReq(ctx context.Context, req *struct{}) (*LargoInfoResponse, error) {
+	resp := &LargoInfoResponse{}
+	resp.Body.TempoMin = 40
+	resp.Body.TempoMax = 66
+	resp.Body.Description = "Music with slow tempo (bpm)"
+	return resp, nil
+}
 
 func main() {
 	router := http.NewServeMux()
@@ -67,7 +68,7 @@ func main() {
 
 	api := humago.New(router, humaConf)
 	huma.Post(api, "/largo", handleTempo)
-	// huma.Get(api, "/largo", handleDefReq)
+	huma.Get(api, "/largo", handleDefReq)
 
 	writeOpenAPISpecToFile(api)
 
