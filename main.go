@@ -67,15 +67,18 @@ func main() {
 	humaConf.DocsPath = "/swagger-ui"
 
 	api := humago.New(router, humaConf)
-	huma.Post(api, "/largo", handleTempo)
-	huma.Get(api, "/largo", handleDefReq)
-
+	addRoutes(api)
 	writeOpenAPISpecToFile(api)
 
 	port := "8888"
 	fmt.Printf("Starting Largo on port %v\n", port)
 
 	http.ListenAndServe("127.0.0.1:"+port, router)
+}
+
+func addRoutes(api huma.API) {
+	huma.Post(api, "/largo", handleTempo)
+	huma.Get(api, "/largo", handleDefReq)
 }
 
 func writeOpenAPISpecToFile(api huma.API) {
