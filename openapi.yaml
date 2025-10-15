@@ -3,12 +3,12 @@ info:
     title: Largo
     version: 42.0.0
 paths:
-    /token:
+    /largo:
         post:
-            summary: Post token
-            operationId: post-token
+            summary: Post largo
+            operationId: post-largo
             parameters:
-                - name: x-name
+                - name: x-title
                   in: header
                   schema:
                     type: string
@@ -16,7 +16,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/TokenRequestBody'
+                            $ref: '#/components/schemas/TempoRequestBody'
                 required: true
             responses:
                 "200":
@@ -28,7 +28,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/TokenResponseBody'
+                                $ref: '#/components/schemas/TempoResponseBody'
                 default:
                     description: Error
                     content:
@@ -94,7 +94,7 @@ components:
                     default: about:blank
                     examples:
                         - https://example.com/errors/example
-        TokenRequestBody:
+        TempoRequestBody:
             type: object
             additionalProperties: false
             properties:
@@ -103,21 +103,21 @@ components:
                     description: A URL to the JSON Schema for this object.
                     format: uri
                     examples:
-                        - https://example.com/schemas/TokenRequestBody.json
+                        - https://example.com/schemas/TempoRequestBody.json
                     readOnly: true
-                age:
+                tempo:
                     type: integer
+                    description: Tempo in bpm
                     format: int64
-                    minimum: 18
-                name:
+                title:
                     type: string
                 urn:
                     type: string
-                    pattern: '^skybert.net:foo:'
+                    pattern: '^skybert.net:largo:'
             required:
-                - age
+                - tempo
                 - urn
-        TokenResponseBody:
+        TempoResponseBody:
             type: object
             additionalProperties: false
             properties:
@@ -126,12 +126,18 @@ components:
                     description: A URL to the JSON Schema for this object.
                     format: uri
                     examples:
-                        - https://example.com/schemas/TokenResponseBody.json
+                        - https://example.com/schemas/TempoResponseBody.json
                     readOnly: true
-                access_token:
-                    type: string
-                    description: The keys to the mines of Moria
+                largo:
+                    type: boolean
+                tempo:
+                    type: integer
+                    description: How fast is largo music? (bpm)
+                    format: int64
                     examples:
-                        - ey..
+                        - 40
+                title:
+                    type: string
             required:
-                - access_token
+                - tempo
+                - largo

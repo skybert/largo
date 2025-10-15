@@ -14,34 +14,51 @@ import (
 	"go.yaml.in/yaml/v3"
 )
 
-type TokenResponse struct {
+type TempoRequest struct {
+	Title string `header:"x-title"`
+	Body  struct {
+		Tempo int    `json:"tempo" required:"true" doc:"Tempo in bpm"`
+		Title string `json:"title" required:"false"`
+		URN   string `json:"urn" pattern:"^skybert.net:largo:"`
+	}
+}
+
+type TempoResponse struct {
 	TraceId string `header: x-trace-id`
 	Body    struct {
-		AccessToken string `json:"access_token" example:"ey.." doc:"The keys to the mines of Moria"`
+		Title   string `json:"title,omitempty" required:"false"`
+		Tempo   int    `json:"tempo" example:"40" doc:"How fast is largo music? (bpm)"`
+		IsLargo bool   `json:"largo"`
 	}
 }
 
-type TokenRequest struct {
-	Name string `header:"x-name"`
-	Body struct {
-		Name string `json:"name" required:"false"`
-		Age  int    `json:"age" minimum:"18"`
-		URN  string `json:"urn" pattern:"^skybert.net:foo:"`
-	}
-}
+// type LargoInfoResponse struct {
+// 	Body struct {
+// 		TempoMin int `json:"tempo_min"`
+// 		TempoMax int `json:"tempo_max"`
+// 	}
+// }
 
-func handleToken(ctx context.Context, input *TokenRequest) (*TokenResponse, error) {
-	resp := &TokenResponse{}
+func handleTempo(ctx context.Context, req *TempoRequest) (*TempoResponse, error) {
+	resp := &TempoResponse{}
 	resp.TraceId = "largo-" + strconv.Itoa(rand.Int())
-	name := input.Name
-	if name == "" {
-		name = input.Body.Name
+	title := req.Title
+	if title == "" {
+		title = req.Body.Title
 	}
-	resp.Body.AccessToken = "hi " + name +
-		", you may be " + fmt.Sprint(input.Body.Age) + " old" +
-		" urn: " + input.Body.URN
+	resp.Body.Title = title
+	resp.Body.IsLargo = (req.Body.Tempo >= 40 && req.Body.Tempo <= 66)
+	resp.Body.Tempo = req.Body.Tempo
 	return resp, nil
 }
+
+// func handleDefReq(ctx context.Context, req *struct{}) (*LargoInfoResponse, error) {
+// 	resp := &LargoInfoResponse{}
+// 	resp.Body.TempoMin = 40
+// 	resp.Body.TempoMax = 66
+
+// 	return resp, nil
+// }
 
 func main() {
 	router := http.NewServeMux()
@@ -49,7 +66,8 @@ func main() {
 	humaConf.DocsPath = "/swagger-ui"
 
 	api := humago.New(router, humaConf)
-	huma.Post(api, "/token", handleToken)
+	huma.Post(api, "/largo", handleTempo)
+	// huma.Get(api, "/largo", handleDefReq)
 
 	writeOpenAPISpecToFile(api)
 
