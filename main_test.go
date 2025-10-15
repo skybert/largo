@@ -32,16 +32,36 @@ func TestPostLargo(t *testing.T) {
 	assert.Equal(t, 200, resp.Code)
 
 	var result *struct {
-		Title   string `json:"title,omitempty" required:"false"`
-		Tempo   int    `json:"tempo" example:"40" doc:"How fast is largo music? (bpm)"`
-		IsLargo bool   `json:"largo"`
+		IsLargo bool `json:"largo"`
 	}
 
 	err := json.Unmarshal(resp.Body.Bytes(), &result)
 	if err != nil {
 		t.Fatalf("Failed to unmarshal response: %v", err)
 	}
-	assert.Equal(t, true, result.IsLargo)
+	assert.True(t, result.IsLargo)
+}
+
+func TestPostLargo_NotLargo(t *testing.T) {
+	_, api := humatest.New(t)
+
+	addRoutes(api)
+
+	resp := api.Post("/largo", map[string]any{
+		"tempo": 140,
+	})
+
+	assert.Equal(t, 200, resp.Code)
+
+	var result *struct {
+		IsLargo bool `json:"largo"`
+	}
+
+	err := json.Unmarshal(resp.Body.Bytes(), &result)
+	if err != nil {
+		t.Fatalf("Failed to unmarshal response: %v", err)
+	}
+	assert.False(t, result.IsLargo)
 }
 
 func TestPostLargoInvalidURN(t *testing.T) {
